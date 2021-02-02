@@ -1,20 +1,21 @@
-# dbdb
+## dbdb
 
 An object storage inspired on Git and IPFS.
 
-## List of commands
+# List of commands
 
-- add <file>
-- cat <hash_list>
+- `add <FILE>`
+- `cat <HASH>`
 
-### plumbing
+## plumbing
 
-- hash-object
-- cat-block
-- build-tree <hash_list>
-- cat <hash_list>
+- `hash-object <FILE>`
+- `cat-block <[HASH]>`
 
-### chunk-file
+
+# Internals
+
+## blocks
 
 Split a file into chunks of 1024b
 
@@ -31,6 +32,6 @@ block_size=256 KB
 HDFS
 block_size=128 MB
 
-### compress-file
+## compression
 
 Compression is Snappy to be compatible with Spark parquet files

@@ -17,33 +17,28 @@ fn main() {
                 .arg(Arg::with_name("FILE").required(true).index(1)),
         )
         .subcommand(
-            SubCommand::with_name("cat-block")
-                .arg(Arg::with_name("HASH").required(true).index(1)),
+            SubCommand::with_name("cat-block").arg(Arg::with_name("HASH").required(true).multiple(true)),
         )
         .subcommand(
-            SubCommand::with_name("add")
-                .arg(Arg::with_name("FILE").required(true).index(1)),
+            SubCommand::with_name("add").arg(Arg::with_name("FILE").required(true).index(1)),
         )
         .subcommand(
-            SubCommand::with_name("cat")
-                .arg(Arg::with_name("HASH").required(true).index(1)),
+            SubCommand::with_name("cat").arg(Arg::with_name("HASH").required(true).index(1)),
         )
         .get_matches();
 
     match matches.subcommand() {
-        ("add", Some(args)) => cmd_add(
-            args.value_of("FILE").unwrap(),
-        ),
-        ("cat", Some(args)) => cmd_cat(
-            args.value_of("HASH").unwrap(),
-        ),
-        ("hash-object", Some(args)) => cmd_hash_object(
-            args.value_of("FILE").unwrap(),
-            args.is_present("w"),
-        ),
-        ("cat-block", Some(args)) => cmd_cat_block(
-            args.value_of("HASH").unwrap().split(" ").collect(),
-        ),
+        ("add", Some(args)) => cmd_add(args.value_of("FILE").unwrap()),
+        ("cat", Some(args)) => cmd_cat(args.value_of("HASH").unwrap()),
+        ("hash-object", Some(args)) => {
+            cmd_hash_object(args.value_of("FILE").unwrap(), args.is_present("w"))
+        }
+        ("cat-block", Some(args)) => {
+            if let Some(hash) = args.values_of("HASH") {
+                let blocks = hash.collect::<Vec<_>>();
+                cmd_cat_block(blocks);
+            }
+        }
         _ => println!("{}", matches.usage()),
     }
 }
