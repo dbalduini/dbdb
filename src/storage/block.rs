@@ -40,6 +40,10 @@ impl BlockManager {
         Self {}
     }
 
+    /// Split a file into blocks of fixed size.
+    /// If create is set to `true`, the blocks will be written to disk.
+    /// 
+    /// An ordered vector is returned with the hash of the blocks.
     pub fn split(&self, file: &str, create: bool) -> Vec<String> {
         let input_file = PathBuf::from(file);
         let mut file = File::open(input_file).unwrap();
@@ -75,9 +79,11 @@ impl BlockManager {
         (n, buff)
     }
 
-    pub fn join(&self, blocks: Vec<String>, w: impl Write) {
+    /// Read all blocks chunks given the vector of hash
+    /// and join the contents on the writer.
+    pub fn join(&self, hashes: Vec<String>, w: impl Write) {
         let mut writer = w;
-        for hash in blocks {
+        for hash in hashes {
             let (n, chunk) = self.read_chunk(&hash);
             let block = Block::from(&chunk[..n]);
             let data = block.data();            

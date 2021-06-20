@@ -9,6 +9,13 @@ pub enum Leaf<'f> {
     Pair(&'f str, &'f str),
 }
 
+/// In a MerkleTree, the leaf nodes are hash of the Data Blocks (aka. chunks) `L`.
+/// The parent node is also a MerkleTree, and has at most two children.
+/// 
+/// The hash for each leaf node `h(L)` is computed by its content (content-addressing).
+/// Then, the hash for each pair of leaf node h(h(L1) + h(L2)) is computed, creating a parent node.
+/// 
+/// Data nodes are prefixed with **block**, while parent nodes are prefixed with **tree**.
 pub struct MerkleTree {
     hash_list: Vec<String>,
 }
@@ -18,6 +25,7 @@ impl MerkleTree {
         Self { hash_list }
     }
 
+    /// Write this Merkle Tree into disk, returning the root node (the top hash).
     pub fn write(&mut self) -> Result<String, std::io::Error> {
         self.write_to_end("block")
     }
@@ -68,7 +76,8 @@ impl MerkleTree {
     }
 }
 
-pub fn read_tree(root: &str, acc: &mut Vec<String>) {
+/// Read a tree from a root node, appending the blocks hash into a vector.
+pub fn read_tree(root: &str, hashes: &mut Vec<String>) {
     let path = get_path_from_hash(root);
 
     if let Ok(mut file) = get_or_create_file(path, false) {
@@ -81,11 +90,11 @@ pub fn read_tree(root: &str, acc: &mut Vec<String>) {
             if line.starts_with("tree") {
                 // "tree "
                 let node = line.split_at(5).1;
-                read_tree(node, acc);
+                read_tree(node, hashes);
             } else if line.starts_with("block") {
                 // "block "
                 let hash = line.split_at(6).1.to_string();
-                acc.push(hash);
+                hashes.push(hash);
             }
         }
     }

@@ -64,10 +64,10 @@ fn cmd_cat_block(blocks: Vec<&str>) {
 fn cmd_add(path: &str) {
     let bm = BlockManager::new();
 
-    let chunks = bm.split(path, true);
-    let chunks = chunks.iter().map(|x| x.to_string()).collect();
+    let hashes = bm.split(path, true);
+    //let chunks = chunks.iter().map(|x| x.to_string()).collect();
 
-    let mut tree = MerkleTree::new(chunks);
+    let mut tree = MerkleTree::new(hashes);
     let root_hash = tree.write().unwrap();
 
     append_only_index(&root_hash, "lorem.txt").unwrap();
@@ -77,10 +77,10 @@ fn cmd_add(path: &str) {
 
 fn cmd_cat(root: &str) {
     // read the blocks from the tree
-    let mut blocks = Vec::new();
-    read_tree(root, &mut blocks);
-    // join the blocks into the stdout
+    let mut hashes = Vec::new();
+    read_tree(root, &mut hashes);
+    // join the hashes into the stdout
     let bm = BlockManager::new();
     let mut writer = std::io::stdout();
-    bm.join(blocks, &mut writer);
+    bm.join(hashes, &mut writer);
 }
